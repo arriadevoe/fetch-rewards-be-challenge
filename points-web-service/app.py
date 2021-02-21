@@ -34,4 +34,13 @@ def spend_points():
 
 @app.route('/points', methods=['GET'])
 def get_payer_points():
-    return {'status': 'OK'}
+    point_balances = {}
+
+    for transactions in data_store:
+        curr_payer = transactions['payer']
+        if curr_payer in point_balances.keys():
+            point_balances[curr_payer] += int(transactions['points'])
+        else:
+            point_balances[curr_payer] = int(transactions['points'])
+
+    return point_balances
