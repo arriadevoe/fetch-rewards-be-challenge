@@ -15,7 +15,13 @@ def add_transaction():
 
 @app.route('/transactions', methods=['POST'])
 def add_transaction():
-    return {'status': 'OK'}
+    request_body = app.current_request.json_body
+
+    if type(request_body) == list:
+        for ts in request_body:
+            data_store.append(request_body)
+    
+    return data_store
 
 
 @app.route('/points', methods=['POST'])
