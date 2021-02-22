@@ -53,29 +53,30 @@ def spend_points():
         key = lambda ts: ts['timestamp']
         )
     
-    points_to_spend = request_body['points']
-    points_spent = {}
-
+    requested_points = request_body['points']
     total_points_available = sum([ts['points'] for ts in sorted_transactions])
-    if points_to_spend > total_points_available:
+    
+    if requested_points > total_points_available:
         error_dict = {
             "Error": "Not enough points available for this request",
             "Available Points": total_points_available
         }
         return custom_error(error_dict, 400)
+    
+    points_spent = {}
         
     for ts_idx, transaction in enumerate(sorted_transactions):
         ts_points = transaction['points']
-        if points_to_spend > 0 and ts_points != 0:
-            if points_to_spend >= ts_points:
+        if requested_points > 0 and ts_points != 0:
+            if requested_points >= ts_points:
                 points_consumed = ts_points
-                points_to_spend -= points_consumed
+                requested_points -= points_consumed
                 sorted_transactions[ts_idx]['points'] = 0
             else:
-                points_consumed = points_to_spend
+                points_consumed = requested_points
                 ts_remainder = ts_points - points_consumed
                 sorted_transactions[ts_idx]['points'] = ts_remainder
-                points_to_spend = 0
+                requested_points = 0
 
             ts_payer = transaction['payer']
 
@@ -83,7 +84,7 @@ def spend_points():
                 points_spent[ts_payer] += points_consumed
             else:
                 points_spent[ts_payer] = points_consumed
-        elif points_to_spend == 0:
+        elif requested_points == 0:
             break
     
     transaction_store = sorted_transactions
