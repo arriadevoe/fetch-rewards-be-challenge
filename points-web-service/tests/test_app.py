@@ -55,7 +55,7 @@ def test_post_transactions_invalid_record_keys2():
     with Client(app) as client:
         request_body = [
                 { "payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z" },
-                { "user": "DANNON", "points": 300 }
+                { "payer": "DANNON", "points": 300 }
             ]
 
         response = client.http.post(
@@ -90,26 +90,6 @@ def test_post_transactions_invalid_record_keys3():
             "Message": "BadRequestError: Transaction records must contain payer, points, and timestamp keys"
             }
 
-def test_post_transactions_invalid_record_keys3():
-    with Client(app) as client:
-        request_body = [
-                	{ "payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z" }, 
-	                { "payer": "MILLER COORS", "points": 10000, "timestamp": "2020-11-01T14:00:00Z" },
-	                { "payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z" }
-            ]
-
-        response = client.http.post(
-            '/transactions',
-            headers={'content-type': 'application/json'},
-            body=request_body
-            )
-        
-        assert response.status_code == 400
-        assert response.json_body == {
-            "Code": "BadRequestError",
-            "Message": "BadRequestError: Transaction records must contain payer, points, and timestamp keys"
-            }
-
 def test_post_transactions_invalid_data_types1():
     with Client(app) as client:
         request_body = [
@@ -127,7 +107,7 @@ def test_post_transactions_invalid_data_types1():
         assert response.status_code == 400
         assert response.json_body == {
             "Code": "BadRequestError",
-            "Message": "BadRequestError: Transaction records must contain valid data types: payer​ (string), ​points​ (integer), ​timestamp​ (date)"
+            "Message": "BadRequestError: Transaction records must contain valid data types: payer (string), points (integer), timestamp (string as YYYY-MM-DDT00:00:00Z)"
             }
 
 def test_post_transactions_invalid_data_types2():
@@ -147,10 +127,10 @@ def test_post_transactions_invalid_data_types2():
         assert response.status_code == 400
         assert response.json_body == {
             "Code": "BadRequestError",
-            "Message": "BadRequestError: Transaction records must contain valid data types: payer​ (string), ​points​ (integer), ​timestamp​ (date)"
+            "Message": "BadRequestError: Transaction records must contain valid data types: payer (string), points (integer), timestamp (string as YYYY-MM-DDT00:00:00Z)"
             }
 
-def test_post_transactions_invalid_data_types2():
+def test_post_transactions_invalid_data_types3():
     with Client(app) as client:
         request_body = [
                 	{ "payer": "DANNON", "points": -200, "timestamp": 20201101 }, 
@@ -167,8 +147,45 @@ def test_post_transactions_invalid_data_types2():
         assert response.status_code == 400
         assert response.json_body == {
             "Code": "BadRequestError",
-            "Message": "BadRequestError: Transaction records must contain valid data types: payer​ (string), ​points​ (integer), ​timestamp​ (date)"
+            "Message": "BadRequestError: Transaction records must contain valid data types: payer (string), points (integer), timestamp (string as YYYY-MM-DDT00:00:00Z)"
             }
+
+def test_post_transactions_success_single():
+    with Client(app) as client:
+        request_body = [{ "payer": "DANNON", "points": -200, "timestamp": 20201101 }]
+
+        response = client.http.post(
+            '/transactions',
+            headers={'content-type': 'application/json'},
+            body=request_body
+            )
+        
+        assert response.status_code == 400
+        assert response.json_body == {
+            "Code": "BadRequestError",
+            "Message": "BadRequestError: Transaction records must contain valid data types: payer (string), points (integer), timestamp (string as YYYY-MM-DDT00:00:00Z)"
+            }
+
+def test_post_transactions_success_multiple():
+    with Client(app) as client:
+        request_body = [
+                	{ "payer": "DANNON", "points": -200, "timestamp": 20201101 }, 
+	                { "payer": "MILLER COORS", "points": 10000, "timestamp": "2020-11-01T14:00:00Z" },
+	                { "payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z" }
+            ]
+
+        response = client.http.post(
+            '/transactions',
+            headers={'content-type': 'application/json'},
+            body=request_body
+            )
+        
+        assert response.status_code == 400
+        assert response.json_body == {
+            "Code": "BadRequestError",
+            "Message": "BadRequestError: Transaction records must contain valid data types: payer (string), points (integer), timestamp (string as YYYY-MM-DDT00:00:00Z)"
+            }
+
 # transactions
 
 ## add transactions

@@ -18,17 +18,17 @@ def custom_error(body, status):
 def add_transaction():
     incoming_transactions = app.current_request.json_body
     valid_keys = {"payer", "points", "timestamp"}
-    valid_value_types = sorted([str, int, str])
-
+    valid_value_types = ["<class 'int'>", "<class 'str'>", "<class 'str'>"]
     if type(incoming_transactions) == list:
         for transaction in incoming_transactions:
             ts_unique_keys = set(transaction.keys())
-            ts_value_types = sorted([type(val) for val in transaction.values()])
+            ts_value_types = sorted([str(type(val)) for val in transaction.values()])
+            print(ts_value_types)
             
             if ts_unique_keys != valid_keys:
                 raise BadRequestError("Transaction records must contain payer, points, and timestamp keys")
             elif ts_value_types != valid_value_types:
-                raise BadRequestError("Transaction records must contain valid data types: payer​ (string), ​points​ (integer), ​timestamp​ (date)")
+                raise BadRequestError("Transaction records must contain valid data types: payer (string), points (integer), timestamp (string as YYYY-MM-DDT00:00:00Z)")
 
         transaction_store.extend(incoming_transactions)
     else:
