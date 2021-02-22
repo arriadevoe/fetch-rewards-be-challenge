@@ -6,9 +6,9 @@ app.debug = True
 
 transaction_store = []
 
-def custom_error(msg, status):
+def custom_error(body, status):
     return Response(
-        body={"error": msg},
+        body=body,
         headers={'Content-Type': 'text/plain'},
         status_code=status
         ) 
@@ -58,7 +58,11 @@ def spend_points():
 
     total_points_available = sum([ts['points'] for ts in sorted_transactions])
     if points_to_spend > total_points_available:
-        return custom_error("no more points to spend", 400)
+        error_dict = {
+            "Error": "Not enough points available for this request",
+            "Available Points": total_points_available
+        }
+        return custom_error(error_dict, 400)
         
     for ts_idx, transaction in enumerate(sorted_transactions):
         ts_points = transaction['points']
