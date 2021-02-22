@@ -16,16 +16,23 @@ def custom_error(body, status):
 
 @app.route('/transactions', methods=['POST'])
 def add_transaction():
-    req_transaction_list = app.current_request.json_body
+    incoming_transactions = app.current_request.json_body
+    valid_keys = {"payer", "points", "timestamp"}
+    valid_value_types = sorted([str, int, str])
 
-    if type(req_transaction_list) == list:
-        for transaction in req_transaction_list:
-            if set(transaction.keys()) != {"payer", "points", "timestamp"}:
-                raise BadRequestError("Transaction records must contain payer (string), points (integer), and timestamp (date)")
+    if type(incoming_transactions) == list:
+        for transaction in incoming_transactions:
+            ts_unique_keys = set(transaction.keys())
+            ts_value_types = sorted([type(val) for val in transaction.values()])
+            
+            if ts_unique_keys != valid_keys:
+                raise BadRequestError("Transaction records must contain payer, points, and timestamp keys")
+            elif ts_value_types != valid_value_types:
+                raise BadRequestError("Transaction records must contain valid data types: payer​ (string), ​points​ (integer), ​timestamp​ (date)")
 
-        transaction_store.extend(req_transaction_list)
+        transaction_store.extend(incoming_transactions)
     else:
-        raise BadRequestError("Request body must be of type list with at least one transaction record")
+        raise BadRequestError("Request body must be of type list and include at least one transaction record")
     
     return transaction_store
 
