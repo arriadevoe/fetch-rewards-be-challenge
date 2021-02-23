@@ -310,9 +310,7 @@ def test_get_payer_point_balances_with_transactions():
 
 def test_post_spend_points_missing_json():
     with Client(app) as client:
-        client.http.post(
-            "/points"
-        )
+        client.http.post("/points")
         response = client.http.get("/points")
         assert response.status_code == 400
         assert response.json_body == {
@@ -323,7 +321,7 @@ def test_post_spend_points_missing_json():
 
 def test_post_spend_points_invalid_key():
     with Client(app) as client:
-        request_body = { "pts": 5000 }
+        request_body = {"pts": 5000}
         response = client.http.post(
             "/points",
             headers={"content-type": "application/json"},
@@ -339,7 +337,7 @@ def test_post_spend_points_invalid_key():
 
 def test_post_spend_points_multiple_keys():
     with Client(app) as client:
-        request_body = { "points": 5000, 'testing': 24 }
+        request_body = {"points": 5000, "testing": 24}
         response = client.http.post(
             "/points",
             headers={"content-type": "application/json"},
@@ -355,13 +353,13 @@ def test_post_spend_points_multiple_keys():
 
 def test_post_spend_points_invalid_value():
     with Client(app) as client:
-        request_body = { "points": "5000" }
+        request_body = {"points": "5000"}
         response = client.http.post(
             "/points",
             headers={"content-type": "application/json"},
             body=request_body,
         )
-        
+
         assert response.status_code == 400
         assert response.json_body == {
             "Code": "BadRequestError",
@@ -371,28 +369,32 @@ def test_post_spend_points_invalid_value():
 
 def test_post_spend_points_insufficient_balance():
     with Client(app) as client:
-        request_body = { "points": 5000 }
+        request_body = {"points": 5000}
         response = client.http.post(
             "/points",
             headers={"content-type": "application/json"},
             body=request_body,
         )
-        
+
         assert response.status_code == 409
         assert response.json_body == {
             "Error": "Not enough points available for this request",
-            "Available Points": 0
-            }
+            "Available Points": 0,
+        }
 
 
 def test_post_spend_points_success():
     with Client(app) as client:
         request_body = [
-            { "payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z" },
-            { "payer": "UNILEVER", "points": 200, "timestamp": "2020-10-31T11:00:00Z" }, 
-            { "payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z" }, 
-            { "payer": "MILLER COORS", "points": 10000, "timestamp": "2020-11-01T14:00:00Z" },
-            { "payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z" }
+            {"payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z"},
+            {"payer": "UNILEVER", "points": 200, "timestamp": "2020-10-31T11:00:00Z"},
+            {"payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z"},
+            {
+                "payer": "MILLER COORS",
+                "points": 10000,
+                "timestamp": "2020-11-01T14:00:00Z",
+            },
+            {"payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z"},
         ]
 
         response = client.http.post(
@@ -400,26 +402,65 @@ def test_post_spend_points_success():
             headers={"content-type": "application/json"},
             body=request_body,
         )
-        
+
         assert response.status_code == 200
         assert response.json_body == [
-            {
-                "payer": "DANNON",
-                "points": -100
-            },
-            {
-                "payer": "UNILEVER",
-                "points": -200
-            },
+            {"payer": "DANNON", "points": -100},
+            {"payer": "UNILEVER", "points": -200},
+            {"payer": "MILLER COORS", "points": -4700},
+        ]
+
+        response2 = client.http.get("/points")
+
+        assert response2.status_code == 200
+        assert response2.json_body == {
+            "DANNON": 1000,
+            "UNILEVER": 0,
+            "MILLER COORS": 5300,
+        }
+
+
+def test_post_spend_points_success_successive():
+    with Client(app) as client:
+        request_body = [
+            {"payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z"},
+            {"payer": "UNILEVER", "points": 200, "timestamp": "2020-10-31T11:00:00Z"},
+            {"payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z"},
             {
                 "payer": "MILLER COORS",
-                "points": -4700
-            }
-            ]
+                "points": 10000,
+                "timestamp": "2020-11-01T14:00:00Z",
+            },
+            {"payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z"},
+        ]
 
-## spend points
-# no json object
-# non-numerical value
-# points key missing
-# more than one key exists
-# more points than what is available
+        response = client.http.post(
+            "/points",
+            headers={"content-type": "application/json"},
+            body=request_body,
+        )
+
+        assert response.status_code == 200
+        assert response.json_body == [
+            {"payer": "DANNON", "points": -100},
+            {"payer": "UNILEVER", "points": -200},
+            {"payer": "MILLER COORS", "points": -4700},
+        ]
+
+        response2 = client.http.post(
+            "/points",
+            headers={"content-type": "application/json"},
+            body=request_body,
+        )
+
+        assert response2.status_code == 200
+        assert response2.json_body == [{"payer": "MILLER COORS", "points": -5000}]
+
+        response3 = client.http.get("/points")
+
+        assert response3.status_code == 200
+        assert response3.json_body == {
+            "DANNON": 1000,
+            "UNILEVER": 0,
+            "MILLER COORS": 300,
+        }
