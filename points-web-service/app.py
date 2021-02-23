@@ -56,15 +56,17 @@ def get_payer_points():
 @app.route("/points", methods=["POST"])
 def spend_points():
     request_body = app.current_request.json_body
-    if type(request_body) != dict or len(request_body) != 1 or 'points' not in request_body:
+    if (
+        type(request_body) != dict
+        or len(request_body) != 1
+        or "points" not in request_body
+    ):
         raise BadRequestError(
             "Request body must be of type dict and with a single key 'points'"
         )
     elif type(request_body["points"]) != int:
-        raise BadRequestError(
-            "Points value must be of type int"
-        )
-    
+        raise BadRequestError("Points value must be of type int")
+
     global transaction_store
     sorted_transactions = sorted(transaction_store, key=lambda ts: ts["timestamp"])
 

@@ -16,9 +16,9 @@ def test_post_add_transactions_missing_json():
 def test_post_add_transactions_empty_list():
     with Client(app) as client:
         response = client.http.post(
-            "/transactions", 
-            headers={"content-type": "application/json"}, 
-            body=json.dumps([])
+            "/transactions",
+            headers={"content-type": "application/json"},
+            body=json.dumps([]),
         )
 
         assert response.status_code == 200
@@ -28,15 +28,15 @@ def test_post_add_transactions_empty_list():
 def test_post_add_transactions_wrong_json_type():
     with Client(app) as client:
         request_body = {
-                "payer": "DANNON",
-                "points": 300,
-                "timestamp": "2020-10-31T10:00:00Z",
-            }
+            "payer": "DANNON",
+            "points": 300,
+            "timestamp": "2020-10-31T10:00:00Z",
+        }
 
         response = client.http.post(
             "/transactions",
             headers={"content-type": "application/json"},
-            body=json.dumps(request_body)
+            body=json.dumps(request_body),
         )
 
         assert response.status_code == 400
@@ -48,7 +48,9 @@ def test_post_add_transactions_wrong_json_type():
 
 def test_post_add_transactions_invalid_record_keys1():
     with Client(app) as client:
-        request_body = [{"user": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z"}]
+        request_body = [
+            {"user": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z"}
+        ]
         response = client.http.post(
             "/transactions",
             headers={"content-type": "application/json"},
@@ -205,7 +207,7 @@ def test_post_spend_points_insufficient_balance():
 def test_post_add_transactions_success_single():
     with Client(app) as client:
         request_body = [
-            { "payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z" }
+            {"payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z"}
         ]
 
         response = client.http.post(
@@ -216,17 +218,21 @@ def test_post_add_transactions_success_single():
 
         assert response.status_code == 200
         assert response.json_body == [
-            { "payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z" }
+            {"payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z"}
         ]
 
 
 def test_post_add_transactions_success_multiple():
     with Client(app) as client:
         request_body = [
-            { "payer": "UNILEVER", "points": 200, "timestamp": "2020-10-31T11:00:00Z" }, 
-	        { "payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z" }, 
-	        { "payer": "MILLER COORS", "points": 10000, "timestamp": "2020-11-01T14:00:00Z" },
-	        { "payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z" }
+            {"payer": "UNILEVER", "points": 200, "timestamp": "2020-10-31T11:00:00Z"},
+            {"payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z"},
+            {
+                "payer": "MILLER COORS",
+                "points": 10000,
+                "timestamp": "2020-11-01T14:00:00Z",
+            },
+            {"payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z"},
         ]
 
         response = client.http.post(
@@ -237,11 +243,15 @@ def test_post_add_transactions_success_multiple():
 
         assert response.status_code == 200
         assert response.json_body == [
-            { "payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z" },
-            { "payer": "UNILEVER", "points": 200, "timestamp": "2020-10-31T11:00:00Z" }, 
-	        { "payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z" }, 
-	        { "payer": "MILLER COORS", "points": 10000, "timestamp": "2020-11-01T14:00:00Z" },
-	        { "payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z" }
+            {"payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z"},
+            {"payer": "UNILEVER", "points": 200, "timestamp": "2020-10-31T11:00:00Z"},
+            {"payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z"},
+            {
+                "payer": "MILLER COORS",
+                "points": 10000,
+                "timestamp": "2020-11-01T14:00:00Z",
+            },
+            {"payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z"},
         ]
 
 
@@ -253,7 +263,7 @@ def test_get_payer_point_balances_success():
         assert response.json_body == {
             "DANNON": 1100,
             "UNILEVER": 200,
-            "MILLER COORS": 10000
+            "MILLER COORS": 10000,
         }
 
 
