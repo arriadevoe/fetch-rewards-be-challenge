@@ -5,10 +5,10 @@ Our users have points in their accounts. Users only see a single balance in thei
 In our system, each transaction record contains: ​payer​ (string), ​points​ (integer), ​timestamp​ (date). For earning points it is easy to assign a payer, we know which actions earned the points. And thus which partner should be paying for the points.
 
 When a user spends points, they don't know or care which payer the points come from. But, our accounting team does care how the points are spent. There are two rules for determining what points to "spend" first:
-1. We want the oldest points to be spent first (oldest based on transaction timestamp, not the order they’re received)
+1. We want the oldest points to be spent first (based on transaction timestamp)
 2. We want no payer's points to go negative.
 
-The web service found in this repository accepts HTTP requests to handle the following for a specific user:
+The serverless web service found in this repository accepts HTTP requests to handle the following functionality for a specific user using a mock data store:
 - Adding transactions for a specific payer and date
 - Spending points using the rules mentioned above
 - Returning all payer point balances
@@ -36,7 +36,7 @@ If you do not have Python, install latest 3.x version:
 #### Install required dependencies
 `pipenv install`
 
-#### Initialize local development environment
+#### Initialize a local development environment
 `cd points-web-service`  
 `chalice local`
 
@@ -44,7 +44,7 @@ At this point you should be able to send HTTP requests locally to http://localho
 
 In this directory you can also run the tests found in `/tests/test_app.py` by using the command `pytest -v`.
 
-#### In order to deploy this service AWS credentials must be configured first
+#### If you want to deploy this service, AWS credentials must be configured first
    - If AWS CLI has already been configured you can skip this step
    - Else credentials can be usually configured at `~/.aws/config` with this content:
       ```
@@ -64,7 +64,7 @@ In this directory you can also run the tests found in `/tests/test_app.py` by us
 
 ### Add transactions for a specific payer and date
 
-Add a single or multiple transactions for a specific payer and date. Payer and timestamp values must both be strings, with timestamp in the following format: `YYYY-MM-DDTHH:MM:SSZ`. Points values must be integers.
+Add a single or multiple transactions for a specific payer and date. Payer and timestamp values must both be strings, with timestamp in the following format: `YYYY-MM-DDTHH:MM:SSZ`. Points values must be integers. Returns a response with all available transactions in the data store.
 
 #### Request
 `POST /transactions`
@@ -121,7 +121,7 @@ Status: 400 Bad Request
 
 ### Spend points
 
-Spend any number of points as long as there are sufficient points in the user's balance. Points value must be of integer type.
+Spend any number of points as long as there are sufficient points in the user's balance. Points value must be of integer type. Returns a response with how many points were taken from each payer.
 
 #### Request
 `POST /points`
@@ -179,13 +179,10 @@ Status: 409 Conflict
 
 ### Return all payer point balances
 
-Returns summary of points by payer. Points value must be of integer type.
+Returns summary of points available by payer. Points value must be of integer type.
 
 #### Request
 `GET /points`
-```
-{ "points": 5000 }
-```
 
 #### Success Response
 ```
