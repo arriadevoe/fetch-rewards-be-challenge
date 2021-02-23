@@ -19,7 +19,7 @@ The serverless web service found in this repository accepts HTTP requests to han
 
 ## Development
 #### Before starting, make sure you have Python and pip installed
-`python --version`
+`python --version`  
 `pip --version`
 
 If you do not have Python, install latest 3.x version: 
