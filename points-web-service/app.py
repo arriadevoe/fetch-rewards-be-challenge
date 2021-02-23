@@ -60,6 +60,10 @@ def spend_points():
         raise BadRequestError(
             "Request body must be of type dict and with a single key 'points'"
         )
+    elif type(request_body["points"]) != int:
+        raise BadRequestError(
+            "Points value must be of type int"
+        )
     
     global transaction_store
     sorted_transactions = sorted(transaction_store, key=lambda ts: ts["timestamp"])
@@ -72,7 +76,7 @@ def spend_points():
             "Error": "Not enough points available for this request",
             "Available Points": total_points_available,
         }
-        return custom_error(error_body, 400)
+        return custom_error(error_body, 409)
 
     points_spent = {}
 

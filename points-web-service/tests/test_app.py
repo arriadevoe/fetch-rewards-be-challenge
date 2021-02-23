@@ -337,7 +337,85 @@ def test_post_spend_points_invalid_key():
         }
 
 
+def test_post_spend_points_multiple_keys():
+    with Client(app) as client:
+        request_body = { "points": 5000, 'testing': 24 }
+        response = client.http.post(
+            "/points",
+            headers={"content-type": "application/json"},
+            body=request_body,
+        )
 
+        assert response.status_code == 400
+        assert response.json_body == {
+            "Code": "BadRequestError",
+            "Message": "BadRequestError: Request body must be of type dict and with a single key 'points'",
+        }
+
+
+def test_post_spend_points_invalid_value():
+    with Client(app) as client:
+        request_body = { "points": "5000" }
+        response = client.http.post(
+            "/points",
+            headers={"content-type": "application/json"},
+            body=request_body,
+        )
+        
+        assert response.status_code == 400
+        assert response.json_body == {
+            "Code": "BadRequestError",
+            "Message": "BadRequestError: Points value must be of type int",
+        }
+
+
+def test_post_spend_points_insufficient_balance():
+    with Client(app) as client:
+        request_body = { "points": 5000 }
+        response = client.http.post(
+            "/points",
+            headers={"content-type": "application/json"},
+            body=request_body,
+        )
+        
+        assert response.status_code == 409
+        assert response.json_body == {
+            "Error": "Not enough points available for this request",
+            "Available Points": 0
+            }
+
+
+def test_post_spend_points_success():
+    with Client(app) as client:
+        request_body = [
+            { "payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z" },
+            { "payer": "UNILEVER", "points": 200, "timestamp": "2020-10-31T11:00:00Z" }, 
+            { "payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z" }, 
+            { "payer": "MILLER COORS", "points": 10000, "timestamp": "2020-11-01T14:00:00Z" },
+            { "payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z" }
+        ]
+
+        response = client.http.post(
+            "/points",
+            headers={"content-type": "application/json"},
+            body=request_body,
+        )
+        
+        assert response.status_code == 200
+        assert response.json_body == [
+            {
+                "payer": "DANNON",
+                "points": -100
+            },
+            {
+                "payer": "UNILEVER",
+                "points": -200
+            },
+            {
+                "payer": "MILLER COORS",
+                "points": -4700
+            }
+            ]
 
 ## spend points
 # no json object
