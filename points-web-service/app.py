@@ -12,7 +12,7 @@ def custom_error(body, status):
 
 
 @app.route("/transactions", methods=["POST"])
-def add_transaction():
+def add_transactions():
     incoming_transactions = app.current_request.json_body
     valid_keys = {"payer", "points", "timestamp"}
     valid_value_types = ["<class 'int'>", "<class 'str'>", "<class 'str'>"]
@@ -40,7 +40,7 @@ def add_transaction():
 
 
 @app.route("/points", methods=["GET"])
-def get_payer_points():
+def get_all_payer_points():
     point_balances = {}
 
     for transactions in transaction_store:
