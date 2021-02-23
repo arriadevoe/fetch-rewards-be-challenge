@@ -60,7 +60,7 @@ def test_post_add_transactions_invalid_record_keys1():
         assert response.status_code == 400
         assert response.json_body == {
             "Code": "BadRequestError",
-            "Message": "BadRequestError: Transaction records must contain payer, points, and timestamp keys",
+            "Message": "BadRequestError: Transaction records must only contain payer, points, and timestamp keys",
         }
 
 
@@ -80,7 +80,7 @@ def test_post_add_transactions_invalid_record_keys2():
         assert response.status_code == 400
         assert response.json_body == {
             "Code": "BadRequestError",
-            "Message": "BadRequestError: Transaction records must contain payer, points, and timestamp keys",
+            "Message": "BadRequestError: Transaction records must only contain payer, points, and timestamp keys",
         }
 
 
@@ -101,7 +101,7 @@ def test_post_add_transactions_invalid_record_keys3():
         assert response.status_code == 400
         assert response.json_body == {
             "Code": "BadRequestError",
-            "Message": "BadRequestError: Transaction records must contain payer, points, and timestamp keys",
+            "Message": "BadRequestError: Transaction records must only contain payer, points, and timestamp keys",
         }
 
 

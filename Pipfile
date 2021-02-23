@@ -8,7 +8,6 @@ verify_ssl = true
 [packages]
 chalice = "*"
 pytest = "*"
-black = "*"
 
 [requires]
 python_version = "3.7"

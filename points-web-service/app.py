@@ -23,7 +23,7 @@ def add_transaction():
 
             if ts_unique_keys != valid_keys:
                 raise BadRequestError(
-                    "Transaction records must contain payer, points, and timestamp keys"
+                    "Transaction records must only contain payer, points, and timestamp keys"
                 )
             elif ts_value_types != valid_value_types:
                 raise BadRequestError(
@@ -69,7 +69,7 @@ def spend_points():
 
     global transaction_store
     sorted_transactions = sorted(transaction_store, key=lambda ts: ts["timestamp"])
-
+    print(sorted_transactions)
     requested_points = request_body["points"]
     total_points_available = sum([ts["points"] for ts in sorted_transactions])
 
