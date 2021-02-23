@@ -2,8 +2,6 @@ from itertools import chain
 from chalice import Chalice, BadRequestError, Response
 
 app = Chalice(app_name="points-web-service")
-app.debug = True
-
 transaction_store = []
 
 
