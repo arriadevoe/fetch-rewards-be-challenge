@@ -2,7 +2,7 @@ from chalice.test import Client
 from app import app
 
 
-def test_post_transactions_missing_json():
+def test_post_add_transactions_missing_json():
     with Client(app) as client:
         response = client.http.post("/transactions")
         assert response.status_code == 400
@@ -12,7 +12,7 @@ def test_post_transactions_missing_json():
         }
 
 
-def test_post_transactions_empty_list():
+def test_post_add_transactions_empty_list():
     with Client(app) as client:
         response = client.http.post(
             "/transactions", headers={"content-type": "application/json"}, body=[]
@@ -22,7 +22,7 @@ def test_post_transactions_empty_list():
         assert response.json_body == []
 
 
-def test_post_transactions_wrong_json_type():
+def test_post_add_transactions_wrong_json_type():
     with Client(app) as client:
         response = client.http.post(
             "/transactions",
@@ -41,7 +41,7 @@ def test_post_transactions_wrong_json_type():
         }
 
 
-def test_post_transactions_invalid_record_keys1():
+def test_post_add_transactions_invalid_record_keys1():
     with Client(app) as client:
         response = client.http.post(
             "/transactions",
@@ -58,7 +58,7 @@ def test_post_transactions_invalid_record_keys1():
         }
 
 
-def test_post_transactions_invalid_record_keys2():
+def test_post_add_transactions_invalid_record_keys2():
     with Client(app) as client:
         request_body = [
             {"payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z"},
@@ -78,7 +78,7 @@ def test_post_transactions_invalid_record_keys2():
         }
 
 
-def test_post_transactions_invalid_record_keys3():
+def test_post_add_transactions_invalid_record_keys3():
     with Client(app) as client:
         request_body = [
             {"payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z"},
@@ -99,7 +99,7 @@ def test_post_transactions_invalid_record_keys3():
         }
 
 
-def test_post_transactions_invalid_data_types1():
+def test_post_add_transactions_invalid_data_types1():
     with Client(app) as client:
         request_body = [
             {"payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z"},
@@ -124,7 +124,7 @@ def test_post_transactions_invalid_data_types1():
         }
 
 
-def test_post_transactions_invalid_data_types2():
+def test_post_add_transactions_invalid_data_types2():
     with Client(app) as client:
         request_body = [
             {"payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z"},
@@ -149,7 +149,7 @@ def test_post_transactions_invalid_data_types2():
         }
 
 
-def test_post_transactions_invalid_data_types3():
+def test_post_add_transactions_invalid_data_types3():
     with Client(app) as client:
         request_body = [
             {"payer": "DANNON", "points": -200, "timestamp": 20201101},
@@ -174,7 +174,7 @@ def test_post_transactions_invalid_data_types3():
         }
 
 
-def test_post_transactions_success_single():
+def test_post_add_transactions_success_single():
     with Client(app) as client:
         request_body = [
             {"payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z"}
@@ -192,7 +192,7 @@ def test_post_transactions_success_single():
         ]
 
 
-def test_post_transactions_success_multiple():
+def test_post_add_transactions_success_multiple():
     with Client(app) as client:
         request_body = [
             {"payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z"},
@@ -222,7 +222,7 @@ def test_post_transactions_success_multiple():
         ]
 
 
-def test_post_transactions_success_multiple_successive():
+def test_post_add_transactions_success_multiple_successive():
     with Client(app) as client:
         request_body1 = [
             {"payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z"},
@@ -308,9 +308,36 @@ def test_get_payer_point_balances_with_transactions():
         assert response.json_body == {"DANNON": 100, "MILLER COORS": 10000}
 
 
-# points
+def test_post_spend_points_missing_json():
+    with Client(app) as client:
+        client.http.post(
+            "/points"
+        )
+        response = client.http.get("/points")
+        assert response.status_code == 400
+        assert response.json_body == {
+            "Code": "BadRequestError",
+            "Message": "BadRequestError: Error Parsing JSON",
+        }
 
-## get payer points balance
+
+def test_post_spend_points_invalid_key():
+    with Client(app) as client:
+        request_body = { "pts": 5000 }
+        response = client.http.post(
+            "/points",
+            headers={"content-type": "application/json"},
+            body=request_body,
+        )
+
+        assert response.status_code == 400
+        assert response.json_body == {
+            "Code": "BadRequestError",
+            "Message": "BadRequestError: Request body must be of type dict and with a single key 'points'",
+        }
+
+
+
 
 ## spend points
 # no json object
