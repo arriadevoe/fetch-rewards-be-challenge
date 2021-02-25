@@ -7,7 +7,9 @@ transaction_store = []
 
 def custom_error(body, status):
     return Response(
-        body=body, headers={"Content-Type": "text/plain"}, status_code=status
+        body=body, 
+        headers={"Content-Type": "application/json"}, 
+        status_code=status
     )
 
 
