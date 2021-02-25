@@ -71,7 +71,7 @@ def spend_points():
 
     global transaction_store
     sorted_transactions = sorted(transaction_store, key=lambda ts: ts["timestamp"])
-    print(sorted_transactions)
+
     requested_points = request_body["points"]
     total_points_available = sum([ts["points"] for ts in sorted_transactions])
 
